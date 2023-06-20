@@ -1,0 +1,95 @@
+---
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# <img src="mpaeu_obis_logo.jpg" align="right" width="240" /> MPA Europe - Definition of the study area
+
+OBIS/UNESCO is contributing with the MPA Europe project by predicting the potential distribution of species and biogenic habitats, an essential information to map the locations that would maximize the conservation of species and ecosystems. You can know more about the [MPA Europe project here](https://mpa-europe.eu) and [learn more about the contribution of OBIS here](https://obis.org/2023/03/10/MPA_europe/).
+
+## Defining the study area
+
+Here is the code used to generate the shapefiles of the study area, to ensure consistency between partners' tasks. There are two files on the **codes** folder:  `study_area.R` is the main file to produce the study area (see steps documented below); `generate_variants.R` is used to generate other shapefiles of interest (e.g. a version projected to a better CRS for plotting).
+
+In progress:
+
+- Create an expanded study area that will be the base for the SDMs (that is, considering nearby areas where species may also be present).
+
+## Available files
+
+Files are stored in __data/shapefiles__ and are readily available in three versions:
+
+- `mpa_europe_starea_eez_v*.shp`: study area divided by the Marineregions classification (i.e. EEZs intersections with the IHO seas classification). You can group the features by both EEZs and IHO seas, thus providing a good tool for regional based analysis. More information on the Marineregions classification [can be found here.](https://www.marineregions.org/sources.php).
+- `mpa_europe_starea_v*.shp`: study area aggregated as a single polygon. This is the main file for use by the MPA Europe teams.
+- `mpa_europe_starea_laea3035_v*.shp`: study area reprojected for Lambert Azimuthal Equal Area projection (EPSG:3035). It's the recommended projection for general plotting and presentation of results.
+- `mpa_europe_starea_simple_v*.shp`: a simplified study area. Should be used only for plotting purposes when a simplified version is needed.
+
+## How the shapefile was generated?
+
+The study area was defined in the MPA Europe project, but a coherent working shapefile was lacking. We generated one by first downloading the Marineregions IHO/EEZ intersection map (https://www.marineregions.org/downloads.php#ihoeez), so we could filter by both EEZ and IHO seas, and an Europe map from NaturalEarth (https://www.naturalearthdata.com).
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.cap = "(A) Europe region selected for the study. (B) IHO/EEZ intersection map used to obtain the study area.", fig.height= 4, fig.width=7}
+library(mregions)
+# Spatial manipulation
+library(sf)
+library(tidyverse)
+# Other/visualization
+library(rnaturalearth)
+library(ggplot2)
+library(patchwork)
+# Settings
+sf_use_s2(FALSE)
+
+
+# Load shapefiles ----
+# Load IHO borders
+iho <- mr_shp(key = "MarineRegions:eez_iho_union_v2", maxFeatures = 1000)
+
+# Load Europe shapefile
+europe <- ne_countries(scale = "large", continent = "europe")
+europe <- st_as_sf(europe)
+
+# Load world shapefile (for ploting)
+world <- ne_countries(scale = "large")
+world <- st_as_sf(world)
+
+# We crop for the relevant area
+europe.sel <- europe %>% 
+  filter(!str_detect("Russia", admin)) %>%
+  select(admin)
+europe.sel <- st_crop(europe.sel, c(xmin = -68.4, ymin = 20, xmax = 57, ymax = 80.7))
+
+# Plot to see
+p1 <- ggplot()+
+  geom_sf(data = world, fill = "grey60", color = NA) +
+  geom_sf(data = europe.sel, fill = "#006dd7", color = NA) +
+  coord_sf(st_bbox(europe.sel)[c(1,3)], st_bbox(europe.sel)[c(2,4)])+
+  theme_light()
+
+p2 <- ggplot()+
+  geom_sf(data = world, fill = "grey60", color = NA) +
+  geom_sf(data = iho, color = "#006dd7", fill = "grey90", size = .8, alpha = .7) +
+  coord_sf(st_bbox(europe.sel)[c(1,3)], st_bbox(europe.sel)[c(2,4)])+
+  theme_light()
+
+p1 + p2 + plot_annotation(tag_levels = 'A')
+```
+
+<br>
+<br>
+Thus, we intersected both areas to obtain those EEZ correspondent to the study area. We further removed/added some areas manually to reach the final result.
+
+```{r message=FALSE, warning=FALSE, fig.cap = "The final study area for the MPA Europe project."}
+# Load study area shapefile (see study_area.R) ----
+st.area <- read_sf("data/shapefiles/mpa_europe_starea_v2.shp")
+
+ggplot()+
+  geom_sf(data = world, fill = "grey60", color = NA) +
+  geom_sf(data = st.area, fill = "#006dd7", color = NA) +
+  coord_sf(st_bbox(st.area)[c(1,3)], st_bbox(st.area)[c(2,4)])+
+  theme_light()
+```
+
