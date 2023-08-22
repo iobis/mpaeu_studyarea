@@ -23,7 +23,7 @@ st.area <- read_sf(paste0("data/shapefiles/mpa_europe_starea_v", version, ".shp"
 
 
 # Produce alternative shapefiles ----
-# Simplified shapefile for simpler maps, illustrations, etc
+# Simplified shapefile for simpler maps, illustrations, etc ----
 st.area.simp <- st_simplify(st.area, dTolerance = 0.1)
 plot(st.area.simp)
 
@@ -37,7 +37,7 @@ plot(st.area.rep)
 st_write(st.area.rep,  paste0("data/shapefiles/mpa_europe_starea_laea3035_v", version, ".shp"))
 
 
-# Generate extended study area (for SDMs)
+# Generate extended study area (for SDMs) -----
 # Get GSHHS shapefile (https://www.soest.hawaii.edu/pwessel/gshhg/)
 if (!file.exists("data/gshhg-shp-2.3.7.zip") & !dir.exists("data/gshhg-shp-2.3.7")) {
   download.file("http://www.soest.hawaii.edu/pwessel/gshhg/gshhg-shp-2.3.7.zip",
@@ -77,8 +77,7 @@ ext.area <- st_as_sf(ext.area)
 st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_v", version, ".shp"))
 
 
-##### OPTION 2 - INCLUDING THE WHOLE ATLANTIC - TO SEE IF IT MAKES SENSE...
-# Generate extended study area (for SDMs)
+# Generate extended study area (for SDMs) - option 2, including whole Atlantic ----
 # Get GSHHS shapefile (https://www.soest.hawaii.edu/pwessel/gshhg/)
 if (!file.exists("data/gshhg-shp-2.3.7.zip") & !dir.exists("data/gshhg-shp-2.3.7")) {
   download.file("http://www.soest.hawaii.edu/pwessel/gshhg/gshhg-shp-2.3.7.zip",
@@ -116,3 +115,44 @@ ext.area <- st_as_sf(ext.area)
 
 # Save
 st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_allatl_v", version, ".shp"))
+
+
+# 20 nautical miles study area ----
+nm20 <- mregions::mr_shp("MarineRegions:eez_12nm", maxFeatures = 3000)
+
+# Crop to study area
+nm20 <- st_crop(nm20, st.area)
+
+# Intersects with study area
+nm20.int <- st_intersects(nm20, st.area, sparse = F)
+nm20.area <- nm20[nm20.int,]
+
+# Plot to verify
+mapview()+st.area+nm20.area
+
+nm20.area <- nm20.area %>%
+  filter(!mrgid %in% c(49031, 49091))
+
+# There are still two areas that need to be removed, which we do manually drawing two
+# polygons covering the regions
+nm20.remove.1 <- st_as_sfc(st_bbox(ext(32, 36, 23, 30)))
+st_crs(nm20.remove.1) <- st_crs(st.area)
+
+nm20.remove.2 <- st_as_sfc(st_bbox(ext(34, 39, 45, 48)))
+st_crs(nm20.remove.2) <- st_crs(st.area)
+nm20.remove.2 <- st_difference(nm20.remove.2, st.area)
+
+# Put both together
+nm20.remove.c <- st_union(nm20.remove.1, nm20.remove.2)
+
+# Plot to verify before removing
+mapview()+st.area+nm20.area+nm20.remove.c
+
+# Remove areas
+nm20.area <- st_difference(nm20.area, nm20.remove.c)
+
+# Plot to verify final result
+mapview()+st.area+nm20.area
+
+# Save final result
+st_write(nm20.area,  paste0("data/shapefiles/mpa_europe_starea_20nm_v", version, ".shp"))

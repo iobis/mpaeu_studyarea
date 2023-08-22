@@ -24,23 +24,27 @@ In progress:
 
 ## Available files
 
-Files are stored in **data/shapefiles** and are readily available in
-three versions:
+Files are stored in **data/shapefiles** and are readily available in six
+variants:
 
+- `mpa_europe_starea_v*.shp`: study area aggregated as a single polygon.
+  This is the main file for use by the MPA Europe teams.
 - `mpa_europe_starea_eez_v*.shp`: study area divided by the
   Marineregions classification (i.e. EEZs intersections with the IHO
   seas classification). You can group the features by both EEZs and IHO
   seas, thus providing a good tool for regional based analysis. More
   information on the Marineregions classification [can be found
   here.](https://www.marineregions.org/sources.php).
-- `mpa_europe_starea_v*.shp`: study area aggregated as a single polygon.
-  This is the main file for use by the MPA Europe teams.
+- `mpa_europe_starea_20nm_v*.shp`: study area cropped to the limit of 20
+  nautical miles (territorial seas).
 - `mpa_europe_starea_laea3035_v*.shp`: study area reprojected for
   Lambert Azimuthal Equal Area projection (EPSG:3035). It’s the
   recommended projection for general plotting and presentation of
   results.
 - `mpa_europe_starea_simple_v*.shp`: a simplified study area. Should be
   used only for plotting purposes when a simplified version is needed.
+- `mpa_europe_extarea*`: expanded study area for use with the SDMs.
+  Still being adjusted.
 
 ## How the shapefile was generated?
 
@@ -51,13 +55,20 @@ Marineregions IHO/EEZ intersection map
 filter by both EEZ and IHO seas, and an Europe map from NaturalEarth
 (<https://www.naturalearthdata.com>).
 
-![(A) Europe region selected for the study. (B) IHO/EEZ intersection map
-used to obtain the study
-area.](README_files/figure-gfm/unnamed-chunk-1-1.png)
+<figure>
+<img src="README_files/figure-gfm/unnamed-chunk-1-1.png"
+alt="(A) Europe region selected for the study. (B) IHO/EEZ intersection map used to obtain the study area." />
+<figcaption aria-hidden="true">(A) Europe region selected for the study.
+(B) IHO/EEZ intersection map used to obtain the study area.</figcaption>
+</figure>
 
 <br> <br> Thus, we intersected both areas to obtain those EEZ
 correspondent to the study area. We further removed/added some areas
 manually to reach the final result.
 
-![The final study area for the MPA Europe
-project.](README_files/figure-gfm/unnamed-chunk-2-1.png)
+<figure>
+<img src="README_files/figure-gfm/unnamed-chunk-2-1.png"
+alt="The final study area for the MPA Europe project." />
+<figcaption aria-hidden="true">The final study area for the MPA Europe
+project.</figcaption>
+</figure>
