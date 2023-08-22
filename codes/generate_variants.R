@@ -117,42 +117,42 @@ ext.area <- st_as_sf(ext.area)
 st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_allatl_v", version, ".shp"))
 
 
-# 20 nautical miles study area ----
-nm20 <- mregions::mr_shp("MarineRegions:eez_12nm", maxFeatures = 3000)
+# 12 nautical miles study area ----
+nm12 <- mregions::mr_shp("MarineRegions:eez_12nm", maxFeatures = 3000)
 
 # Crop to study area
-nm20 <- st_crop(nm20, st.area)
+nm12 <- st_crop(nm12, st.area)
 
 # Intersects with study area
-nm20.int <- st_intersects(nm20, st.area, sparse = F)
-nm20.area <- nm20[nm20.int,]
+nm12.int <- st_intersects(nm12, st.area, sparse = F)
+nm12.area <- nm12[nm12.int,]
 
 # Plot to verify
-mapview()+st.area+nm20.area
+mapview()+st.area+nm12.area
 
-nm20.area <- nm20.area %>%
+nm12.area <- nm12.area %>%
   filter(!mrgid %in% c(49031, 49091))
 
 # There are still two areas that need to be removed, which we do manually drawing two
 # polygons covering the regions
-nm20.remove.1 <- st_as_sfc(st_bbox(ext(32, 36, 23, 30)))
-st_crs(nm20.remove.1) <- st_crs(st.area)
+nm12.remove.1 <- st_as_sfc(st_bbox(ext(32, 36, 23, 30)))
+st_crs(nm12.remove.1) <- st_crs(st.area)
 
-nm20.remove.2 <- st_as_sfc(st_bbox(ext(34, 39, 45, 48)))
-st_crs(nm20.remove.2) <- st_crs(st.area)
-nm20.remove.2 <- st_difference(nm20.remove.2, st.area)
+nm12.remove.2 <- st_as_sfc(st_bbox(ext(34, 39, 45, 48)))
+st_crs(nm12.remove.2) <- st_crs(st.area)
+nm12.remove.2 <- st_difference(nm12.remove.2, st.area)
 
 # Put both together
-nm20.remove.c <- st_union(nm20.remove.1, nm20.remove.2)
+nm12.remove.c <- st_union(nm12.remove.1, nm12.remove.2)
 
 # Plot to verify before removing
-mapview()+st.area+nm20.area+nm20.remove.c
+mapview()+st.area+nm12.area+nm12.remove.c
 
 # Remove areas
-nm20.area <- st_difference(nm20.area, nm20.remove.c)
+nm12.area <- st_difference(nm12.area, nm12.remove.c)
 
 # Plot to verify final result
-mapview()+st.area+nm20.area
+mapview()+st.area+nm12.area
 
 # Save final result
-st_write(nm20.area,  paste0("data/shapefiles/mpa_europe_starea_20nm_v", version, ".shp"))
+st_write(nm12.area,  paste0("data/shapefiles/mpa_europe_starea_12nm_v", version, ".shp"))

@@ -35,7 +35,7 @@ variants:
   seas, thus providing a good tool for regional based analysis. More
   information on the Marineregions classification [can be found
   here.](https://www.marineregions.org/sources.php).
-- `mpa_europe_starea_20nm_v*.shp`: study area cropped to the limit of 20
+- `mpa_europe_starea_12nm_v*.shp`: study area cropped to the limit of 12
   nautical miles (territorial seas).
 - `mpa_europe_starea_laea3035_v*.shp`: study area reprojected for
   Lambert Azimuthal Equal Area projection (EPSG:3035). It’s the
