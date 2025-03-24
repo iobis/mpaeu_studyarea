@@ -15,11 +15,11 @@ library(mapview)
 sf_use_s2(FALSE)
 
 # Define version
-version <- 2
+version <- 3
 
 
 # Load study area shapefile (see study_area.R) ----
-st.area <- read_sf(paste0("data/shapefiles/mpa_europe_starea_v", version, ".shp"))
+st.area <- read_sf(paste0("data/shapefiles/mpa_europe_starea_v", version, ".gpkg"))
 
 
 # Produce alternative shapefiles ----
@@ -27,14 +27,14 @@ st.area <- read_sf(paste0("data/shapefiles/mpa_europe_starea_v", version, ".shp"
 st.area.simp <- st_simplify(st.area, dTolerance = 0.1)
 plot(st.area.simp)
 
-st_write(st.area.simp, paste0("data/shapefiles/mpa_europe_starea_simple_v", version, ".shp"))
+st_write(st.area.simp, paste0("data/shapefiles/mpa_europe_starea_simple_v", version, ".gpkg"))
 
 
 # Reproject for Lambert Azimuthal Equal Area projection
 st.area.rep <- st_transform(st.area, "EPSG:3035")
 plot(st.area.rep)
 
-st_write(st.area.rep,  paste0("data/shapefiles/mpa_europe_starea_laea3035_v", version, ".shp"))
+st_write(st.area.rep,  paste0("data/shapefiles/mpa_europe_starea_laea3035_v", version, ".gpkg"))
 
 
 # Generate extended study area (for SDMs) -----
@@ -48,7 +48,7 @@ if (!file.exists("data/gshhg-shp-2.3.7.zip") & !dir.exists("data/gshhg-shp-2.3.7
 borders <- vect("data/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp")
 
 # Get North Atlantic shapefile
-natlantic <- mregions::mr_shp("MarineRegions:goas")
+natlantic <- mregions2::mrp_get("goas")
 natlantic <- natlantic[natlantic$name == "North Atlantic Ocean",]
 
 # Get a base raster in the resolution that will be used on the project
@@ -64,7 +64,7 @@ ext.area <- crop(base, ext(
 ))
 
 # Remove areas not of interest
-to.remove <- mregions::mr_shp("MarineRegions:goas")
+to.remove <- mregions2::mrp_get("goas")
 to.remove <- to.remove[to.remove$name %in% c("North Pacific Ocean", "South Pacific Ocean",
                                              "Indian Ocean"),]
 
@@ -74,7 +74,7 @@ ext.area <- as.polygons(ext.area)
 ext.area <- st_as_sf(ext.area)
 
 # Save
-st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_v", version, ".shp"))
+st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_v", version, ".gpkg"))
 
 
 # Generate extended study area (for SDMs) - option 2, including whole Atlantic ----
@@ -88,7 +88,7 @@ if (!file.exists("data/gshhg-shp-2.3.7.zip") & !dir.exists("data/gshhg-shp-2.3.7
 borders <- vect("data/gshhg-shp-2.3.7/GSHHS_shp/f/GSHHS_f_L1.shp")
 
 # Get Atlantic shapefile
-atlantic <- mregions::mr_shp("MarineRegions:goas")
+atlantic <- mregions2::mrp_get("goas")
 atlantic <- atlantic[grepl("Atlantic", atlantic$name),]
 
 # Get a base raster in the resolution that will be used on the project
@@ -104,7 +104,7 @@ ext.area <- crop(base, ext(
 ))
 
 # Remove areas not of interest
-to.remove <- mregions::mr_shp("MarineRegions:goas")
+to.remove <- mregions2::mrp_get("goas")
 to.remove <- to.remove[to.remove$name %in% c("North Pacific Ocean", "South Pacific Ocean",
                                              "Indian Ocean"),]
 
@@ -114,11 +114,11 @@ ext.area <- as.polygons(ext.area)
 ext.area <- st_as_sf(ext.area)
 
 # Save
-st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_allatl_v", version, ".shp"))
+st_write(ext.area,  paste0("data/shapefiles/mpa_europe_extarea_allatl_v", version, ".gpkg"))
 
 
 # 12 nautical miles study area ----
-nm12 <- mregions::mr_shp("MarineRegions:eez_12nm", maxFeatures = 3000)
+nm12 <- mregions2::mrp_get("eez_12nm")
 
 # Crop to study area
 nm12 <- st_crop(nm12, st.area)
@@ -155,4 +155,7 @@ nm12.area <- st_difference(nm12.area, nm12.remove.c)
 mapview()+st.area+nm12.area
 
 # Save final result
-st_write(nm12.area,  paste0("data/shapefiles/mpa_europe_starea_12nm_v", version, ".shp"))
+nm12.area %>%
+  select(mrgid, geoname, sovereign1) %>%
+  st_simplify(dTolerance = 0.001) %>%
+  st_write(paste0("data/shapefiles/mpa_europe_starea_12nm_v", version, ".gpkg"))

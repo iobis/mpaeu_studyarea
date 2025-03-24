@@ -24,27 +24,32 @@ In progress:
 
 ## Available files
 
-Files are stored in **data/shapefiles** and are readily available in six
-variants:
+Files are stored in **data/shapefiles** and are readily available in
+seven variants:
 
-- `mpa_europe_starea_v*.shp`: study area aggregated as a single polygon.
-  This is the main file for use by the MPA Europe teams.
-- `mpa_europe_starea_eez_v*.shp`: study area divided by the
+- `mpa_europe_starea_v*.gpkg`: study area aggregated as a single
+  polygon, but with coastline adjusted for Bio-ORACLE. This is the main
+  file used for modelling.
+- `mpa_europe_starea_hr_v*.gpkg`: study area aggregated as a single
+  polygon, in the original resolution. This is the main file for use by
+  the MPA Europe team, if not working with Bio-ORACLE data.
+- `mpa_europe_starea_eez_v*.gpkg`: study area divided by the
   Marineregions classification (i.e. EEZs intersections with the IHO
   seas classification). You can group the features by both EEZs and IHO
   seas, thus providing a good tool for regional based analysis. More
   information on the Marineregions classification [can be found
   here.](https://www.marineregions.org/sources.php).
-- `mpa_europe_starea_12nm_v*.shp`: study area cropped to the limit of 12
-  nautical miles (territorial seas).
-- `mpa_europe_starea_laea3035_v*.shp`: study area reprojected for
+- `mpa_europe_starea_12nm_v*.gpkg`: study area cropped to the limit of
+  12 nautical miles (territorial seas).
+- `mpa_europe_starea_laea3035_v*.gpkg`: study area reprojected for
   Lambert Azimuthal Equal Area projection (EPSG:3035). It’s the
   recommended projection for general plotting and presentation of
   results.
-- `mpa_europe_starea_simple_v*.shp`: a simplified study area. Should be
+- `mpa_europe_starea_simple_v*.gpkg`: a simplified study area. Should be
   used only for plotting purposes when a simplified version is needed.
-- `mpa_europe_extarea*`: expanded study area for use with the SDMs.
-  Still being adjusted.
+- `mpa_europe_extarea*`: expanded study area.
+
+The most recent version is offered in GeoPackage (`gpkg`) format.
 
 ## How the shapefile was generated?
 
