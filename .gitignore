@@ -53,3 +53,4 @@ rsconnect/
 
 /data/*
 !/data/shapefiles/
+!/data/manual_mpaeu_outline.geojson
